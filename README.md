@@ -1,3 +1,34 @@
+## Modern Cordova support (0.3.0)
+
+This fork targets Cordova iOS 8 and Cordova Android 15. The iOS implementation
+uses WKWebView, presents from the Cordova view controller in its current scene,
+and lays out its custom toolbar inside the safe area. Toolbar height defaults
+to 44 points; on iOS the minimum is 44 points to retain usable touch targets.
+
+```js
+const browser = cordova.ThemeableBrowser.open(url, '_blank', {
+    location: false,
+    toolbarposition: 'bottom',
+    toolbar: { height: 44, color: '#172643ff' },
+    title: { color: '#ffffffff' },
+    closebuttoncaption: 'Back to app',
+    clearcache: false,
+    clearsessioncache: false
+});
+```
+
+Options are a JSON object with booleans, not InAppBrowser's comma-separated
+option string. `closebuttoncaption` adds a text close button on both platforms
+when no custom `closeButton` images are configured. Existing custom image
+buttons and toolbar colors remain supported. `hide()` hides the browser without
+ending the session; `close()` emits `exit`. `loadstart` reports main-frame
+navigation and HTTP redirects, including the final SSO callback URL.
+
+On iOS, cache and session-cookie clearing completes before navigation starts.
+Legacy UIWebView-only settings for keyboard activation and viewport scaling
+are not applied to WKWebView. Retest SSO, cancellation, cookie reuse, and
+external links on physical devices after installation.
+
 <!---
     Licensed to the Apache Software Foundation (ASF) under one
     or more contributor license agreements.  See the NOTICE file

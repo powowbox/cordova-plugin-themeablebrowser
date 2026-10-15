@@ -68,7 +68,7 @@ import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.CordovaWebView;
 import org.apache.cordova.PluginManager;
 import org.apache.cordova.PluginResult;
-import org.apache.cordova.Whitelist;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -145,7 +145,7 @@ public class ThemeableBrowser extends CordovaPlugin {
                             shouldAllowNavigation = true;
                         }
                         if (shouldAllowNavigation == null) {
-                            shouldAllowNavigation = new Whitelist().isUrlWhiteListed(url);
+                            shouldAllowNavigation = webView.getPluginManager().shouldAllowNavigation(url);
                         }
                         if (shouldAllowNavigation == null) {
                             try {
@@ -241,6 +241,11 @@ public class ThemeableBrowser extends CordovaPlugin {
             PluginResult pluginResult = new PluginResult(PluginResult.Status.OK);
             pluginResult.setKeepCallback(true);
             this.callbackContext.sendPluginResult(pluginResult);
+        }
+        else if (action.equals("hide")) {
+            this.cordova.getActivity().runOnUiThread(() -> {
+                if (dialog != null) dialog.hide();
+            });
         }
         else if (action.equals("reload")) {
             if (inAppWebView != null) {
@@ -659,6 +664,12 @@ public class ThemeableBrowser extends CordovaPlugin {
                 }
 
 
+                // Use the localized caption when no custom close image is supplied.
+                if (features.closeButton == null && features.closebuttoncaption != null) {
+                    features.closeButton = new BrowserButton();
+                    features.closeButton.text = features.closebuttoncaption;
+                    features.closeButton.textColor = features.title != null ? features.title.color : "#ffffffff";
+                }
                 // Close/Done button
                 Button close = createButton(
                     features.closeButton,
@@ -783,25 +794,24 @@ public class ThemeableBrowser extends CordovaPlugin {
                 settings.setJavaScriptCanOpenWindowsAutomatically(true);
                 settings.setBuiltInZoomControls(features.zoom);
                 settings.setDisplayZoomControls(false);
-                settings.setPluginState(android.webkit.WebSettings.PluginState.ON);
+
 
                 //Toggle whether this is enabled or not!
                 Bundle appSettings = cordova.getActivity().getIntent().getExtras();
                 boolean enableDatabase = appSettings == null || appSettings.getBoolean("ThemeableBrowserStorageEnabled", true);
                 if (enableDatabase) {
-                    String databasePath = cordova.getActivity().getApplicationContext().getDir("themeableBrowserDB", Context.MODE_PRIVATE).getPath();
-                    settings.setDatabasePath(databasePath);
+
                     settings.setDatabaseEnabled(true);
                 }
                 settings.setDomStorageEnabled(true);
 
                 if (features.clearcache) {
-                    CookieManager.getInstance().removeAllCookie();
+                    CookieManager.getInstance().removeAllCookies(removed -> inAppWebView.loadUrl(url));
                 } else if (features.clearsessioncache) {
-                    CookieManager.getInstance().removeSessionCookie();
+                    CookieManager.getInstance().removeSessionCookies(removed -> inAppWebView.loadUrl(url));
+                } else {
+                    inAppWebView.loadUrl(url);
                 }
-
-                inAppWebView.loadUrl(url);
                 inAppWebView.getSettings().setLoadWithOverviewMode(true);
                 inAppWebView.getSettings().setUseWideViewPort(true);
                 inAppWebView.requestFocus();
@@ -1141,7 +1151,16 @@ public class ThemeableBrowser extends CordovaPlugin {
             result.setContentDescription(description);
             result.setLayoutParams(new LinearLayout.LayoutParams(
                     LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
-            setButtonImages(result, buttonProps, DISABLED_ALPHA);
+            if (buttonProps.text != null) {
+                result.setText(buttonProps.text);
+                result.setTextSize(16);
+                result.setAllCaps(false);
+                result.setTextColor(hexStringToColor(buttonProps.textColor != null ? buttonProps.textColor : "#ffffffff"));
+                result.setBackgroundColor(android.graphics.Color.TRANSPARENT);
+                result.setMinimumHeight((int) (44 * cordova.getActivity().getResources().getDisplayMetrics().density));
+            } else {
+                setButtonImages(result, buttonProps, DISABLED_ALPHA);
+            }
             if (listener != null) {
                 result.setOnClickListener(listener);
             }
@@ -1371,6 +1390,7 @@ public class ThemeableBrowser extends CordovaPlugin {
      * A class to hold parsed option properties.
      */
     private static class Options {
+        public String closebuttoncaption;
         public boolean location = true;
         public boolean hidden = false;
         public boolean clearcache = false;
@@ -1403,6 +1423,8 @@ public class ThemeableBrowser extends CordovaPlugin {
     }
 
     private static class BrowserButton extends Event {
+        public String text;
+        public String textColor;
         public String image;
         public String wwwImage;
         public String imagePressed;

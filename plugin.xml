@@ -20,17 +20,19 @@
 
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
            id="cordova-plugin-themeablebrowser"
-      version="0.2.12">
+      version="0.3.0">
 
     <name>ThemeableBrowser</name>
     <description>Cordova ThemeableBrowser Plugin</description>
     <license>Apache 2.0</license>
     <keywords>cordova,in,app,browser,themeablebrowser</keywords>
-    <repo>https://github.com/initialxy/cordova-plugin-themeablebrowser.git</repo>
-    <issue>https://github.com/initialxy/cordova-plugin-themeablebrowser/issues</issue>
+    <repo>https://github.com/powowbox/cordova-plugin-themeablebrowser.git</repo>
+    <issue>https://github.com/powowbox/cordova-plugin-themeablebrowser/issues</issue>
 
     <engines>
-      <engine name="cordova" version=">=3.1.0" />
+      <engine name="cordova" version=">=12.0.0" />
+      <engine name="cordova-ios" version=">=8.0.0" platform="ios" />
+      <engine name="cordova-android" version=">=15.0.0" platform="android" />
     </engines>
 
     <!-- android -->
@@ -65,5 +67,6 @@
         <source-file src="src/ios/CDVThemeableBrowser.m" />
         
         <framework src="CoreGraphics.framework" />
+        <framework src="WebKit.framework" />
     </platform>
 </plugin>
