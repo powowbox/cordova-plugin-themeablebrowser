@@ -904,6 +904,12 @@ public class ThemeableBrowser extends CordovaPlugin {
                         rightContainerWidth
                                 += close.getLayoutParams().width;
                     } else {
+                        if (features.closeButton.text != null) {
+                            LinearLayout.LayoutParams closeParams = (LinearLayout.LayoutParams) close.getLayoutParams();
+                            closeParams.leftMargin = dpToPixels(10);
+                            close.setLayoutParams(closeParams);
+                            leftContainerWidth += closeParams.leftMargin;
+                        }
                         leftButtonContainer.addView(close, 0);
                         leftContainerWidth
                                 += close.getLayoutParams().width;
