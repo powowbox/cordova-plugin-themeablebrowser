@@ -1,4 +1,4 @@
-## Modern Cordova support (0.3.0)
+## Modern Cordova support (0.3.x)
 
 This fork targets Cordova iOS 8 and Cordova Android 15. The iOS implementation
 uses WKWebView, presents from the Cordova view controller in its current scene,
@@ -16,6 +16,12 @@ const browser = cordova.ThemeableBrowser.open(url, '_blank', {
     clearsessioncache: false
 });
 ```
+
+On Android, `toolbarposition: 'bottom'` places the toolbar below the page
+(or overlays the bottom edge with `fullscreen: true`). A configured `toolbar`
+or `closeButton` remains visible when `location: false`; hiding the address
+bar must not remove the way back to the app. The Android position defaults to
+`top` to retain the existing fork behavior.
 
 Options are a JSON object with booleans, not InAppBrowser's comma-separated
 option string. `closebuttoncaption` adds a text close button on both platforms

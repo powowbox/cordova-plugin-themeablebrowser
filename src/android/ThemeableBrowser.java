@@ -926,20 +926,22 @@ public class ThemeableBrowser extends CordovaPlugin {
                     toolbar.addView(title);
                 }
 
+                // A configured toolbar/close button remains visible when the address bar is hidden.
+                final boolean toolbarVisible = features.location || features.toolbar != null
+                        || features.closeButton != null;
+                final boolean toolbarAtBottom = "bottom".equals(features.toolbarposition);
                 if (features.fullscreen) {
-                    // If full screen mode, we have to add inAppWebView before adding toolbar.
                     main.addView(inAppWebView);
-                }
-
-                // Don't add the toolbar if its been disabled
-                if (features.location) {
-                    // Add our toolbar to our main view/layout
-                    main.addView(toolbar);
-                }
-
-                if (!features.fullscreen) {
-                    // If not full screen, we add inAppWebView after adding toolbar.
+                    if (toolbarVisible) {
+                        FrameLayout.LayoutParams toolbarParams = new FrameLayout.LayoutParams(
+                                LayoutParams.MATCH_PARENT, toolbar.getLayoutParams().height);
+                        toolbarParams.gravity = toolbarAtBottom ? Gravity.BOTTOM : Gravity.TOP;
+                        main.addView(toolbar, toolbarParams);
+                    }
+                } else {
+                    if (toolbarVisible && !toolbarAtBottom) main.addView(toolbar);
                     main.addView(inAppWebView);
+                    if (toolbarVisible && toolbarAtBottom) main.addView(toolbar);
                 }
 
                 WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
@@ -1390,6 +1392,7 @@ public class ThemeableBrowser extends CordovaPlugin {
      * A class to hold parsed option properties.
      */
     private static class Options {
+        public String toolbarposition = "top";
         public String closebuttoncaption;
         public boolean location = true;
         public boolean hidden = false;
