@@ -22,6 +22,9 @@ On Android, `toolbarposition: 'bottom'` places the toolbar below the page
 or `closeButton` remains visible when `location: false`; hiding the address
 bar must not remove the way back to the app. The Android position defaults to
 `top` to retain the existing fork behavior.
+For a left-aligned Android close button, set `closeButton: { marginLeft: 10 }`
+to add 10dp of left margin. The default is zero; margin-only configuration
+retains the localized `closebuttoncaption` text button.
 
 Options are a JSON object with booleans, not InAppBrowser's comma-separated
 option string. `closebuttoncaption` adds a text close button on both platforms

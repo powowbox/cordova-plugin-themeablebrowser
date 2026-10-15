@@ -665,8 +665,10 @@ public class ThemeableBrowser extends CordovaPlugin {
 
 
                 // Use the localized caption when no custom close image is supplied.
-                if (features.closeButton == null && features.closebuttoncaption != null) {
-                    features.closeButton = new BrowserButton();
+                if (features.closebuttoncaption != null && (features.closeButton == null
+                        || (features.closeButton.text == null && features.closeButton.image == null
+                        && features.closeButton.wwwImage == null))) {
+                    if (features.closeButton == null) features.closeButton = new BrowserButton();
                     features.closeButton.text = features.closebuttoncaption;
                     features.closeButton.textColor = features.title != null ? features.title.color : "#ffffffff";
                 }
@@ -904,9 +906,9 @@ public class ThemeableBrowser extends CordovaPlugin {
                         rightContainerWidth
                                 += close.getLayoutParams().width;
                     } else {
-                        if (features.closeButton.text != null) {
+                        if (features.closeButton.marginLeft > 0) {
                             LinearLayout.LayoutParams closeParams = (LinearLayout.LayoutParams) close.getLayoutParams();
-                            closeParams.leftMargin = dpToPixels(10);
+                            closeParams.leftMargin = dpToPixels(features.closeButton.marginLeft);
                             close.setLayoutParams(closeParams);
                             leftContainerWidth += closeParams.leftMargin;
                         }
@@ -1432,6 +1434,7 @@ public class ThemeableBrowser extends CordovaPlugin {
     }
 
     private static class BrowserButton extends Event {
+        public int marginLeft = 0;
         public String text;
         public String textColor;
         public String image;
